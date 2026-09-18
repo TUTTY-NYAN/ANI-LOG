@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anime Log</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: linear-gradient(145deg, #0f0c1f 0%, #1a1630 100%);
+    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1.5rem;
+  }
+
+  .app-card {
+    max-width: 900px;
+    width: 100%;
+    background: rgba(22, 19, 40, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(180, 140, 255, 0.25);
+    border-radius: 2rem;
+    padding: 2.2rem 2rem;
+    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7);
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ede9ff;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    text-shadow: 0 2px 10px rgba(160, 120, 255, 0.6);
+  }
+
+  .subhead {
+    color: #a99bc9;
+    font-size: 0.95rem;
+    margin: 0.4rem 0 2rem;
+    padding-left: 1rem;
+    border-left: 3px solid #8b6eff;
+  }
+
+  /* --- FORM --- */
+  .add-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+    align-items: flex-end;
+  }
+
+  .input-group {
+    flex: 1 1 150px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .input-group label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    color: #b7a9e0;
+    margin-bottom: 0.35rem;
+    padding-left: 0.3rem;
+  }
+
+  .input-group input {
+    background: rgba(12, 10, 24, 0.8);
+    border: 1.5px solid #342e4e;
+    border-radius: 1.2rem;
+    padding: 0.85rem 1.1rem;
+    font-size: 1rem;
+    color: #f0ecff;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .input-group input:focus {
+    border-color: #9b7bff;
+    box-shadow: 0 0 0 4px rgba(155, 123, 255, 0.2);
+    background: #1c1733;
+  }
+
+  .input-group input::placeholder { color: #6b5f8a; }
+
+  .add-btn {
+    background: linear-gradient(145deg, #8b6eff, #6a4cdb);
+    border: none;
+    border-radius: 2.5rem;
+    padding: 0.85rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 8px 18px -6px #4a2f9e;
+    transition: all 0.15s ease;
+    height: 52px;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .add-btn:hover {
+    background: linear-gradient(145deg, #9d82ff, #7b5ce6);
+    transform: scale(1.02);
+  }
+
+  .add-btn:active { transform: scale(0.97); }
+
+  /* --- STATS + FILTERS --- */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .stats {
+    display: flex;
+    gap: 1.2rem;
+    color: #cbbef0;
+    font-weight: 500;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 1.4rem;
+    border-radius: 3rem;
+    border: 1px solid #332b4b;
+    font-size: 0.9rem;
+  }
+
+  .stats span {
+    color: #fff;
+    font-weight: 700;
+    margin-left: 0.3rem;
+    background: #382f58;
+    padding: 0.1rem 0.7rem;
+    border-radius: 2rem;
+  }
+
+  .filter-buttons { display: flex; gap: 0.5rem; }
+
+  .filter-btn {
+    background: transparent;
+    border: 1.5px solid #3e355c;
+    color: #b7a9e0;
+    padding: 0.5rem 1.2rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .filter-btn.active {
+    background: #6a4cdb;
+    border-color: #8b6eff;
+    color: white;
+    box-shadow: 0 0 15px #6a4cdb88;
+  }
+
+  .filter-btn:hover:not(.active) { background: #2e2748; }
+
+  /* --- LIST --- */
+  .anime-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .anime-item {
+    background: linear-gradient(105deg, #211c36, #1b162e);
+    border: 1px solid #302950;
+    border-radius: 1.2rem;
+    padding: 1rem 1.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s ease;
+    animation: fadeSlide 0.25s ease;
+  }
+
+  .anime-item:hover {
+    border-color: #5f4b91;
+    background: linear-gradient(105deg, #26203f, #1f1936);
+  }
+
+  .anime-item.watched {
+    opacity: 0.7;
+    border-color: #2a4b3a;
+  }
+
+  .anime-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .anime-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f0eaff;
+    word-break: break-word;
+  }
+
+  .anime-item.watched .anime-title {
+    text-decoration: line-through;
+    color: #a99bc9;
+  }
+
+  .anime-meta {
+    font-size: 0.8rem;
+    color: #a08ec9;
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .anime-meta i {
+    font-style: normal;
+    background: #2e2649;
+    padding: 0.15rem 0.7rem;
+    border-radius: 1.5rem;
+    color: #cbb6ff;
+    font-weight: 600;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
+    background: #292143;
+    border: 1px solid #413763;
+    color: #cebfff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .icon-btn:hover {
+    background: #3d2f66;
+    border-color: #8870d4;
+    transform: scale(1.08);
+  }
+
+  .icon-btn.done-btn {
+    background: #1e3b2e;
+    border-color: #367a4b;
+    color: #b1f0c1;
+  }
+
+  .icon-btn.done-btn:hover { background: #2b5c40; }
+
+  .icon-btn.undo-btn {
+    background: #3f2b47;
+    border-color: #7e5b8b;
+    color: #e6b3ff;
+  }
+
+  .icon-btn.delete-btn:hover {
+    background: #522b3a;
+    border-color: #b85b7a;
+    color: #ffb0c0;
+  }
+
+  /* --- EMPTY --- */
+  .empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #8d7fb0;
+    background: #18122b;
+    border-radius: 1.5rem;
+    border: 1px dashed #3b3157;
+  }
+
+  .empty span {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.6rem;
+    opacity: 0.7;
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .app-card { padding: 1.5rem 1.2rem; border-radius: 1.5rem; }
+    h1 { font-size: 1.6rem; }
+    .add-btn { width: 100%; }
+    .input-group { flex: 1 1 100%; }
+    .toolbar { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+  <div class="app-card">
+    <h1>📺 Anime Log</h1>
+    <div class="subhead">track what you watch · everything saved in your browser</div>
+
+    <!-- Add form -->
+    <form class="add-form" id="addForm">
+      <div class="input-group">
+        <label for="title">Title</label>
+        <input id="title" type="text" placeholder="e.g. Frieren" autocomplete="off" required>
+      </div>
+      <div class="input-group">
+        <label for="episodes">Episodes</label>
+        <input id="episodes" type="number" min="0" placeholder="e.g. 28" autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label for="seasons">Seasons</label>
+        <input id="seasons" type="number" min="0" placeholder="e.g. 2" autocomplete="off">
+      </div>
+      <button class="add-btn" type="submit">+ Add</button>
+    </form>
+
+    <!-- Stats + filters -->
+    <div class="toolbar">
+      <div class="stats">
+        <div>📋 All <span id="statTotal">0</span></div>
+        <div>✅ Done <span id="statDone">0</span></div>
+        <div>⏳ Left <span id="statLeft">0</span></div>
+      </div>
+      <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="pending">To watch</button>
+        <button class="filter-btn" data-filter="done">Done</button>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="anime-list" id="list"></div>
+  </div>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'anime_log_simple';
+
+  // ---------- State ----------
+  let animes = load();
+  let filter = 'all';
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    } catch {}
+    // Seed on first run
+    return [
+      { id: uid(), title: 'Demon Slayer',       episodes: 26, seasons: 3, watched: false },
+      { id: uid(), title: 'Jujutsu Kaisen',     episodes: 24, seasons: 2, watched: true  },
+      { id: uid(), title: 'Attack on Titan',    episodes: 87, seasons: 4, watched: false },
+      { id: uid(), title: 'Spy x Family',       episodes: 25, seasons: 2, watched: true  },
+      { id: uid(), title: 'Frieren',            episodes: 28, seasons: 1, watched: false }
+    ];
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(animes));
+  }
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  // ---------- DOM ----------
+  const $list    = document.getElementById('list');
+  const $form    = document.getElementById('addForm');
+  const $title   = document.getElementById('title');
+  const $episodes= document.getElementById('episodes');
+  const $seasons = document.getElementById('seasons');
+  const $total   = document.getElementById('statTotal');
+  const $done    = document.getElementById('statDone');
+  const $left    = document.getElementById('statLeft');
+  const $filters = document.querySelectorAll('.filter-btn');
+
+  // ---------- Render ----------
+  function render() {
+    renderStats();
+    renderList();
+  }
+
+  function renderStats() {
+    const total = animes.length;
+    const done  = animes.filter(a => a.watched).length;
+    $total.textContent = total;
+    $done.textContent  = done;
+    $left.textContent  = total - done;
+  }
+
+  function renderList() {
+    const visible = animes.filter(a => {
+      if (filter === 'pending') return !a.watched;
+      if (filter === 'done')    return  a.watched;
+      return true;
+    });
+
+    $list.innerHTML = '';
+
+    if (!visible.length) {
+      $list.innerHTML = `
+        <div class="empty">
+          <span>🍿</span>
+          ${animes.length ? 'Nothing in this filter.' : 'No anime yet — add one above!'}
+        </div>`;
+      return;
+    }
+
+    visible.forEach(anime => {
+      const item = document.createElement('div');
+      item.className = 'anime-item' + (anime.watched ? ' watched' : '');
+
+      const meta = [];
+      if (anime.episodes) meta.push(`<i>📀 ${anime.episodes} eps</i>`);
+      if (anime.seasons)  meta.push(`<i>📺 ${anime.seasons} seasons</i>`);
+
+      item.innerHTML = `
+        <div class="anime-info">
+          <div class="anime-title"></div>
+          <div class="anime-meta">${meta.join('')}</div>
+        </div>
+        <div class="actions">
+          <button class="icon-btn ${anime.watched ? 'undo-btn' : 'done-btn'}" data-action="toggle" title="${anime.watched ? 'Mark as not watched' : 'Mark as done'}">
+            ${anime.watched ? '↩' : '✓'}
+          </button>
+          <button class="icon-btn delete-btn" data-action="delete" title="Delete">🗑</button>
+        </div>
+      `;
+
+      // Use textContent to avoid HTML injection via title
+      item.querySelector('.anime-title').textContent = anime.title;
+
+      item.querySelector('[data-action="toggle"]').addEventListener('click', () => {
+        anime.watched = !anime.watched;
+        save();
+        render();
+      });
+
+      item.querySelector('[data-action="delete"]').addEventListener('click', () => {
+        animes = animes.filter(a => a.id !== anime.id);
+        save();
+        render();
+      });
+
+      $list.appendChild(item);
+    });
+  }
+
+  // ---------- Add ----------
+  $form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = $title.value.trim();
+    if (!title) {
+      $title.focus();
+      return;
+    }
+
+    animes.unshift({
+      id: uid(),
+      title,
+      episodes: $episodes.value ? Number($episodes.value) : null,
+      seasons:  $seasons.value  ? Number($seasons.value)  : null,
+      watched: false
+    });
+
+    save();
+
+    // Reset form
+    $form.reset();
+    $title.focus();
+
+    // If currently filtered to "done", switch to "all" so new item is visible
+    if (filter === 'done') setFilter('all');
+
+    render();
+  });
+
+  // ---------- Filters ----------
+  function setFilter(next) {
+    filter = next;
+    $filters.forEach(b => b.classList.toggle('active', b.dataset.filter === next));
+    renderList();
+  }
+
+  $filters.forEach(btn => {
+    btn.addEventListener('click', () => setFilter(btn.dataset.filter));
+  });
+
+  // ---------- Initial ----------
+  save();  // persist the seed on first run
+  render();
+})();
+</script>
+</body>
+</html>
