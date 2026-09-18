@@ -2,69 +2,95 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f0c1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Anime Log">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Anime Log</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  html, body {
+    height: 100%;
+    overflow-x: hidden;
+  }
 
   body {
     background: linear-gradient(145deg, #0f0c1f 0%, #1a1630 100%);
-    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+    background-attachment: fixed;
+    font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+    color: #f0ecff;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 2rem 1.5rem;
+    padding: 1rem 0.75rem calc(1.5rem + var(--safe-bottom));
+    padding-top: calc(1rem + var(--safe-top));
+    -webkit-font-smoothing: antialiased;
   }
 
   .app-card {
-    max-width: 900px;
+    max-width: 720px;
     width: 100%;
     background: rgba(22, 19, 40, 0.85);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(180, 140, 255, 0.25);
-    border-radius: 2rem;
-    padding: 2.2rem 2rem;
-    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7);
+    border-radius: 1.5rem;
+    padding: 1.5rem 1.25rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
   }
 
   h1 {
-    font-size: 2.2rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: #ede9ff;
     display: flex;
     align-items: center;
-    gap: 0.7rem;
+    gap: 0.5rem;
     text-shadow: 0 2px 10px rgba(160, 120, 255, 0.6);
+    line-height: 1.2;
   }
 
   .subhead {
     color: #a99bc9;
-    font-size: 0.95rem;
-    margin: 0.4rem 0 2rem;
-    padding-left: 1rem;
+    font-size: 0.85rem;
+    margin: 0.35rem 0 1.5rem;
+    padding-left: 0.8rem;
     border-left: 3px solid #8b6eff;
+    line-height: 1.4;
   }
 
   /* --- FORM --- */
   .add-form {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-bottom: 2rem;
-    align-items: flex-end;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
   }
 
   .input-group {
-    flex: 1 1 150px;
     display: flex;
     flex-direction: column;
   }
 
   .input-group label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     font-weight: 600;
     color: #b7a9e0;
     margin-bottom: 0.35rem;
@@ -74,13 +100,16 @@
   .input-group input {
     background: rgba(12, 10, 24, 0.8);
     border: 1.5px solid #342e4e;
-    border-radius: 1.2rem;
-    padding: 0.85rem 1.1rem;
-    font-size: 1rem;
+    border-radius: 0.9rem;
+    padding: 0.85rem 1rem;
+    /* 16px min prevents auto-zoom on iOS */
+    font-size: 16px;
     color: #f0ecff;
     outline: none;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     font-family: inherit;
+    width: 100%;
+    min-height: 48px;
   }
 
   .input-group input:focus {
@@ -94,70 +123,89 @@
   .add-btn {
     background: linear-gradient(145deg, #8b6eff, #6a4cdb);
     border: none;
-    border-radius: 2.5rem;
-    padding: 0.85rem 2rem;
+    border-radius: 0.9rem;
+    padding: 1rem;
     font-size: 1rem;
     font-weight: 600;
     color: white;
     cursor: pointer;
-    box-shadow: 0 8px 18px -6px #4a2f9e;
-    transition: all 0.15s ease;
-    height: 52px;
-    white-space: nowrap;
+    box-shadow: 0 6px 16px -6px #4a2f9e;
+    transition: transform 0.12s ease, box-shadow 0.15s ease;
     font-family: inherit;
+    min-height: 52px;
+    touch-action: manipulation;
   }
 
-  .add-btn:hover {
-    background: linear-gradient(145deg, #9d82ff, #7b5ce6);
-    transform: scale(1.02);
+  .add-btn:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 12px -6px #4a2f9e;
   }
-
-  .add-btn:active { transform: scale(0.97); }
 
   /* --- STATS + FILTERS --- */
   .toolbar {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.85rem;
     margin-bottom: 1.2rem;
   }
 
   .stats {
     display: flex;
-    gap: 1.2rem;
+    justify-content: space-around;
+    gap: 0.5rem;
     color: #cbbef0;
     font-weight: 500;
     background: rgba(0, 0, 0, 0.3);
-    padding: 0.5rem 1.4rem;
-    border-radius: 3rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 1rem;
     border: 1px solid #332b4b;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .stats > div {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
   }
 
   .stats span {
     color: #fff;
     font-weight: 700;
-    margin-left: 0.3rem;
     background: #382f58;
-    padding: 0.1rem 0.7rem;
-    border-radius: 2rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    min-width: 1.6rem;
+    text-align: center;
   }
 
-  .filter-buttons { display: flex; gap: 0.5rem; }
+  .filter-buttons {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .filter-buttons::-webkit-scrollbar { display: none; }
 
   .filter-btn {
+    flex: 1;
     background: transparent;
     border: 1.5px solid #3e355c;
     color: #b7a9e0;
-    padding: 0.5rem 1.2rem;
+    padding: 0.7rem 0.9rem;
     border-radius: 2rem;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s;
     font-family: inherit;
+    white-space: nowrap;
+    min-height: 42px;
+    touch-action: manipulation;
   }
 
   .filter-btn.active {
@@ -167,35 +215,35 @@
     box-shadow: 0 0 15px #6a4cdb88;
   }
 
-  .filter-btn:hover:not(.active) { background: #2e2748; }
+  .filter-btn:active:not(.active) { background: #2e2748; }
 
   /* --- LIST --- */
   .anime-list {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.7rem;
   }
 
   .anime-item {
     background: linear-gradient(105deg, #211c36, #1b162e);
     border: 1px solid #302950;
-    border-radius: 1.2rem;
-    padding: 1rem 1.4rem;
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
-    transition: all 0.2s ease;
-    animation: fadeSlide 0.25s ease;
+    gap: 0.75rem;
+    transition: border-color 0.15s ease;
+    animation: fadeSlide 0.22s ease;
   }
 
-  .anime-item:hover {
+  .anime-item:active {
     border-color: #5f4b91;
     background: linear-gradient(105deg, #26203f, #1f1936);
   }
 
   .anime-item.watched {
-    opacity: 0.7;
+    opacity: 0.65;
     border-color: #2a4b3a;
   }
 
@@ -208,10 +256,11 @@
   }
 
   .anime-title {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #f0eaff;
     word-break: break-word;
+    line-height: 1.3;
   }
 
   .anime-item.watched .anime-title {
@@ -220,25 +269,25 @@
   }
 
   .anime-meta {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #a08ec9;
     display: flex;
-    gap: 0.6rem;
+    gap: 0.4rem;
     flex-wrap: wrap;
   }
 
   .anime-meta i {
     font-style: normal;
     background: #2e2649;
-    padding: 0.15rem 0.7rem;
-    border-radius: 1.5rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 1rem;
     color: #cbb6ff;
     font-weight: 600;
   }
 
   .actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
     flex-shrink: 0;
   }
 
@@ -246,21 +295,23 @@
     background: #292143;
     border: 1px solid #413763;
     color: #cebfff;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: transform 0.12s ease, background 0.15s ease;
+    touch-action: manipulation;
+    padding: 0;
+    line-height: 1;
   }
 
-  .icon-btn:hover {
+  .icon-btn:active {
+    transform: scale(0.9);
     background: #3d2f66;
-    border-color: #8870d4;
-    transform: scale(1.08);
   }
 
   .icon-btn.done-btn {
@@ -269,7 +320,7 @@
     color: #b1f0c1;
   }
 
-  .icon-btn.done-btn:hover { background: #2b5c40; }
+  .icon-btn.done-btn:active { background: #2b5c40; }
 
   .icon-btn.undo-btn {
     background: #3f2b47;
@@ -277,7 +328,7 @@
     color: #e6b3ff;
   }
 
-  .icon-btn.delete-btn:hover {
+  .icon-btn.delete-btn:active {
     background: #522b3a;
     border-color: #b85b7a;
     color: #ffb0c0;
@@ -289,14 +340,15 @@
     padding: 2.5rem 1rem;
     color: #8d7fb0;
     background: #18122b;
-    border-radius: 1.5rem;
+    border-radius: 1rem;
     border: 1px dashed #3b3157;
+    font-size: 0.95rem;
   }
 
   .empty span {
     font-size: 2.5rem;
     display: block;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.5rem;
     opacity: 0.7;
   }
 
@@ -305,48 +357,69 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  @media (max-width: 600px) {
-    .app-card { padding: 1.5rem 1.2rem; border-radius: 1.5rem; }
-    h1 { font-size: 1.6rem; }
-    .add-btn { width: 100%; }
-    .input-group { flex: 1 1 100%; }
-    .toolbar { flex-direction: column; align-items: flex-start; }
+  /* --- Tablet / small desktop --- */
+  @media (min-width: 500px) {
+    body { padding: 1.5rem 1rem; padding-top: calc(1.5rem + var(--safe-top)); }
+    .app-card { padding: 2rem 1.75rem; border-radius: 2rem; }
+    h1 { font-size: 1.9rem; }
+    .subhead { font-size: 0.9rem; }
+    .add-form {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .form-row {
+      display: contents;
+    }
+    .input-group { flex: 1 1 140px; }
+    .add-btn { flex: 0 0 auto; padding: 0.85rem 1.75rem; width: auto; min-height: 48px; }
+    .toolbar { flex-direction: row; justify-content: space-between; align-items: center; }
+    .filter-btn { flex: 0 0 auto; }
+    .stats { padding: 0.55rem 1.2rem; }
+  }
+
+  /* --- Larger screens --- */
+  @media (min-width: 700px) {
+    h1 { font-size: 2.2rem; }
+    .app-card { padding: 2.2rem 2rem; }
   }
 </style>
 </head>
 <body>
   <div class="app-card">
     <h1>📺 Anime Log</h1>
-    <div class="subhead">track what you watch · everything saved in your browser</div>
+    <div class="subhead">track what you watch · saved on your device</div>
 
     <!-- Add form -->
-    <form class="add-form" id="addForm">
+    <form class="add-form" id="addForm" novalidate>
       <div class="input-group">
         <label for="title">Title</label>
-        <input id="title" type="text" placeholder="e.g. Frieren" autocomplete="off" required>
+        <input id="title" type="text" placeholder="e.g. Frieren" autocomplete="off" enterkeyhint="next" required>
       </div>
-      <div class="input-group">
-        <label for="episodes">Episodes</label>
-        <input id="episodes" type="number" min="0" placeholder="e.g. 28" autocomplete="off">
+      <div class="form-row">
+        <div class="input-group">
+          <label for="episodes">Episodes</label>
+          <input id="episodes" type="number" inputmode="numeric" min="0" placeholder="28" autocomplete="off" enterkeyhint="next">
+        </div>
+        <div class="input-group">
+          <label for="seasons">Seasons</label>
+          <input id="seasons" type="number" inputmode="numeric" min="0" placeholder="2" autocomplete="off" enterkeyhint="done">
+        </div>
       </div>
-      <div class="input-group">
-        <label for="seasons">Seasons</label>
-        <input id="seasons" type="number" min="0" placeholder="e.g. 2" autocomplete="off">
-      </div>
-      <button class="add-btn" type="submit">+ Add</button>
+      <button class="add-btn" type="submit">+ Add Anime</button>
     </form>
 
     <!-- Stats + filters -->
     <div class="toolbar">
       <div class="stats">
-        <div>📋 All <span id="statTotal">0</span></div>
-        <div>✅ Done <span id="statDone">0</span></div>
-        <div>⏳ Left <span id="statLeft">0</span></div>
+        <div>📋 <span id="statTotal">0</span></div>
+        <div>✅ <span id="statDone">0</span></div>
+        <div>⏳ <span id="statLeft">0</span></div>
       </div>
       <div class="filter-buttons">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="pending">To watch</button>
-        <button class="filter-btn" data-filter="done">Done</button>
+        <button class="filter-btn active" data-filter="all" type="button">All</button>
+        <button class="filter-btn" data-filter="pending" type="button">To watch</button>
+        <button class="filter-btn" data-filter="done" type="button">Done</button>
       </div>
     </div>
 
@@ -358,7 +431,6 @@
 (() => {
   const STORAGE_KEY = 'anime_log_simple';
 
-  // ---------- State ----------
   let animes = load();
   let filter = 'all';
 
@@ -370,13 +442,12 @@
         if (Array.isArray(parsed) && parsed.length) return parsed;
       }
     } catch {}
-    // Seed on first run
     return [
-      { id: uid(), title: 'Demon Slayer',       episodes: 26, seasons: 3, watched: false },
-      { id: uid(), title: 'Jujutsu Kaisen',     episodes: 24, seasons: 2, watched: true  },
-      { id: uid(), title: 'Attack on Titan',    episodes: 87, seasons: 4, watched: false },
-      { id: uid(), title: 'Spy x Family',       episodes: 25, seasons: 2, watched: true  },
-      { id: uid(), title: 'Frieren',            episodes: 28, seasons: 1, watched: false }
+      { id: uid(), title: 'Demon Slayer',    episodes: 26, seasons: 3, watched: false },
+      { id: uid(), title: 'Jujutsu Kaisen',  episodes: 24, seasons: 2, watched: true  },
+      { id: uid(), title: 'Attack on Titan', episodes: 87, seasons: 4, watched: false },
+      { id: uid(), title: 'Spy x Family',    episodes: 25, seasons: 2, watched: true  },
+      { id: uid(), title: 'Frieren',         episodes: 28, seasons: 1, watched: false }
     ];
   }
 
@@ -388,7 +459,6 @@
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   }
 
-  // ---------- DOM ----------
   const $list    = document.getElementById('list');
   const $form    = document.getElementById('addForm');
   const $title   = document.getElementById('title');
@@ -399,7 +469,6 @@
   const $left    = document.getElementById('statLeft');
   const $filters = document.querySelectorAll('.filter-btn');
 
-  // ---------- Render ----------
   function render() {
     renderStats();
     renderList();
@@ -445,14 +514,13 @@
           <div class="anime-meta">${meta.join('')}</div>
         </div>
         <div class="actions">
-          <button class="icon-btn ${anime.watched ? 'undo-btn' : 'done-btn'}" data-action="toggle" title="${anime.watched ? 'Mark as not watched' : 'Mark as done'}">
+          <button class="icon-btn ${anime.watched ? 'undo-btn' : 'done-btn'}" data-action="toggle" type="button" aria-label="${anime.watched ? 'Mark as not watched' : 'Mark as done'}">
             ${anime.watched ? '↩' : '✓'}
           </button>
-          <button class="icon-btn delete-btn" data-action="delete" title="Delete">🗑</button>
+          <button class="icon-btn delete-btn" data-action="delete" type="button" aria-label="Delete">🗑</button>
         </div>
       `;
 
-      // Use textContent to avoid HTML injection via title
       item.querySelector('.anime-title').textContent = anime.title;
 
       item.querySelector('[data-action="toggle"]').addEventListener('click', () => {
@@ -471,7 +539,6 @@
     });
   }
 
-  // ---------- Add ----------
   $form.addEventListener('submit', (e) => {
     e.preventDefault();
     const title = $title.value.trim();
@@ -489,18 +556,14 @@
     });
 
     save();
-
-    // Reset form
     $form.reset();
     $title.focus();
 
-    // If currently filtered to "done", switch to "all" so new item is visible
     if (filter === 'done') setFilter('all');
 
     render();
   });
 
-  // ---------- Filters ----------
   function setFilter(next) {
     filter = next;
     $filters.forEach(b => b.classList.toggle('active', b.dataset.filter === next));
@@ -511,8 +574,7 @@
     btn.addEventListener('click', () => setFilter(btn.dataset.filter));
   });
 
-  // ---------- Initial ----------
-  save();  // persist the seed on first run
+  save();
   render();
 })();
 </script>
